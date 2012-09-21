@@ -1,0 +1,387 @@
+﻿$bodyBackColor: #eaf2fd;
+$backColor: White;
+$mainColor: #1ba1e2;
+$secondaryColor: #309b46;
+$rareColor: #8cbf26;
+$formBorder: #ccc;
+$errorColor: #ff0000;
+$pageHeight: 960px;
+$baseFontSize: 16px;
+$baseLineHeight: 1.6em;
+
+// VARIABLES
+// -------
+$metroUI: true;
+
+// Links
+$linkColor: #1ba1e2;
+$linkColorHover: darken($linkColor, 10);
+
+// Griditude
+$gridColumns: 16;
+$gridColumnWidth: 40px;
+$gridGutterWidth: 20px;
+$extraSpace: 40px;
+$siteWidth: ($gridColumns * $gridColumnWidth) + ($gridGutterWidth * ($gridColumns - 1));
+
+// Baseline grid
+$basefont: 16px;
+$baseline: 22px;
+
+// Color Scheme
+$baseColor: #1ba1e2; // Set a base color
+$metroButtonColor: #8cbf26;
+
+// Accent Colors
+$blue: #049CDB;
+$blueDark: #0064CD;
+$green: #46a546;
+$red: #9d261d;
+$yellow: #ffc40d;
+$orange: #f89406;
+$pink: #c3325f;
+$purple: #7a43b6;
+
+// CSS reset
+@import "reset";
+
+// Core
+@import "colors_mixins";
+@import "scaffolding";
+
+// Styled patterns and elements
+@import "type";
+@import "forms";
+@import "tables";
+// patterns for ui elements
+@import "pattern_pagging";
+@import "pattern_buttons";
+@import "pattern_overlays";
+@import "pattern_topbar";
+@import "pattern_tabs_pills";
+
+/* COMMON STYLES   
+----------------------------------------------------------*/
+.f_right {
+	float: right;
+}
+
+.f_left {
+	float: left;
+}
+
+.cleaner {
+	clear: both;
+}
+
+@mixin transition ($property: all, $duration: 0.5s, $timing-function: ease-in-out, $delay: 0s) {
+	transition-property: #{$property};
+transition-duration: $duration;
+transition-timing-function: $timing-function;
+transition-delay: $delay;
+/* Firefox 4 */
+-moz-transition-property:#{$property};
+-moz-transition-duration:$duration;
+-moz-transition-timing-function:$timing-function;
+-moz-transition-delay:$delay;
+/* Safari and Chrome */
+-webkit-transition-property:#{$property};
+-webkit-transition-duration:$duration;
+-webkit-transition-timing-function:$timing-function;
+-webkit-transition-delay:$delay;
+/* Opera */
+-o-transition-property:#{$property};
+-o-transition-duration:$duration;
+-o-transition-timing-function:$timing-function;
+-o-transition-delay:$delay;
+}
+
+/* PRIMARY LAYOUT ELEMENTS   
+----------------------------------------------------------*/
+$selectedInfoDefaultHeight: 200px;
+
+html {
+	height: 100%;
+}
+body {
+	margin: 0;
+	padding: 0;
+	height: 100%;
+}
+#content {
+	position: relative;
+	min-height: 100%;
+	padding: 0 100px 0 0;
+	overflow: hidden;
+	#search {
+		top: 0px;
+		input{
+			margin-top: 10px;
+			height: 49px;
+			width: 185px;
+		}
+	}
+	.anim_next { 
+		.anim {
+			transform-origin: 50% 0%;
+			-moz-transform-origin: 50% 0%;
+			-webkit-transform-origin: 50% 0%;
+			-o-transform-origin: 50% 0%;
+			transform: perspective(315px) rotateY(0deg) rotateX(-90deg);
+			-moz-transform: perspective(315px) rotateY(0deg) rotateX(-90deg);
+			-webkit-transform: perspective(315px) rotateY(0deg) rotateX(-90deg);
+			-o-transform: perspective(315px) rotateY(0deg) rotateX(-90deg);
+		}
+	}
+	.anim_prev {
+		.anim {
+			transform-origin: 50% 100%;
+			-moz-transform-origin: 50% 100%;
+			-webkit-transform-origin: 50% 100%;
+			-o-transform-origin: 50% 100%;
+			transform: perspective(315px) rotateY(0deg) rotateX(90deg);
+			-moz-transform: perspective(315px) rotateY(0deg) rotateX(90deg);
+			-webkit-transform: perspective(315px) rotateY(0deg) rotateX(90deg);
+			-o-transform: perspective(315px) rotateY(0deg) rotateX(90deg);
+		}
+	}
+	.item {
+		position: absolute;
+		right: -210px;
+		width: 300px;
+		height: 90px;
+		background-color: white;
+		padding: 10px 0 0px 10px;
+		color: black;
+		cursor: pointer;
+		@include transition("right, transform, transform-origin");
+		&:hover {
+			right: 0px;
+		}
+		img {
+			float: left;
+			width: 80px;
+			height: 80px;
+			margin-right: 10px;
+		}
+		.name {
+			font-size: 20px;
+			display: inline-block;
+			width: 200px;
+		}
+	}
+	.item.selected {
+		background-color: #1ba1e2;
+	}
+
+	@for $i from 0 through 20 {
+		.item-#{$i} {
+			top: 0px + 100*($i + 1);
+		}
+	}
+	.next, .prev {
+		background: white url("/Content/images/direction.png") no-repeat 10px 5px;
+		height: 50px;
+		width: 160px;
+		right: -70px;
+		@include transition(right, 0.2s);
+		.name {
+			padding-left: 90px;
+		}
+	}
+	.next{
+		bottom: 0;
+		background-position:10px -55px;
+	}
+	.prev {
+		bottom: 60px;
+	}
+	.disabled {
+		opacity : 0.4;
+		filter: alpha(opacity=40); /* msie */
+		color: silver;
+		cursor: default;
+		&:hover {
+			right: -70px;
+		}
+	}
+	#selected_info {
+		position: absolute;
+		bottom: 0;
+		left: 0;
+		right:100px;
+		height: 0px;
+		@include transition(all);
+		h1 {
+			position:absolute;
+			right: 0;
+			font-size: 15px;
+			line-height: 15px;
+		}
+	}
+	#selected_info.visible {
+		height: $selectedInfoDefaultHeight;
+	}
+}
+#map_canvas {
+	height:500px;
+	min-height: 100%;
+	width:100%;
+	@include transition(all);
+}
+#timeline {
+	width: 100%;
+	height: $selectedInfoDefaultHeight;
+	overflow: hidden;
+	margin: 0px auto;
+	position: relative;
+	@include transition(all);
+}
+#dots {
+	position: absolute;
+	bottom: 0;
+	width: 100%;
+	height: 15px;
+	background: url('/Content/images/timeline/dot.gif') left top repeat-x;
+}
+#dates {
+	position:absolute;
+	bottom: 0;
+	width: 100%;
+	height: 60px;
+	overflow: hidden;
+	margin-bottom: 0;
+	li {
+		list-style: none;
+		float: left;
+		width: 100px;
+		height: 50px;
+		font-size: 24px;
+		text-align: center;
+		background: url('/Content/images/timeline/biggerdot.png') center bottom no-repeat;
+	}
+	a {
+		line-height: 38px;
+		padding-bottom: 10px;
+	}
+	.selected {
+		font-size: 38px;
+	}
+}
+#issues {
+	width: 800px;
+	height: $selectedInfoDefaultHeight - 60;
+	overflow: hidden;
+	margin-bottom: 0;
+	&.extended {
+			
+			.selected {
+				padding-bottom: 60px;
+				h2 {
+				}
+				.more {
+					display:none;
+				}
+				p {
+					overflow:auto;
+				}
+			}
+		}
+	li {
+		width: 800px;
+		list-style: none;
+		float: left;
+		position:relative;
+		
+		&.selected {
+			
+			img {
+				-webkit-transform: scale(1.1,1.1);
+				-moz-transform: scale(1.1,1.1);
+				-o-transform: scale(1.1,1.1);
+				-ms-transform: scale(1.1,1.1);
+				transform: scale(1.1,1.1);
+			}
+			.more {
+				display:block;
+			}
+		}
+		
+		img {
+			float: left;
+			margin: 10px 30px 10px 50px;
+			background: transparent;
+			-ms-filter: "progid:DXImageTransform.Microsoft.gradient(startColorstr=#00FFFFFF,endColorstr=#00FFFFFF)"; /* IE 8 */   
+			filter: progid:DXImageTransform.Microsoft.gradient(startColorstr=#00FFFFFF,endColorstr=#00FFFFFF);/* IE 6 & 7 */      
+			zoom: 1;
+			-webkit-transition: all 2s ease-in-out;
+			-moz-transition: all 2s ease-in-out;
+			-o-transition: all 2s ease-in-out;
+			-ms-transition: all 2s ease-in-out; 
+			transition: all 2s ease-in-out;
+			-webkit-transform: scale(0.7,0.7);
+			-moz-transform: scale(0.7,0.7);
+			-o-transform: scale(0.7,0.7);
+			-ms-transform: scale(0.7,0.7);
+			transform: scale(0.7,0.7);
+		}
+		h2 {
+			color: #1BA1E2;
+			font-size: 48px;
+			margin: 15px 10px 5px 30px;
+			text-shadow: #000 1px 1px 2px;
+		}
+		p {
+			padding: 5px 10px 5px 35px;
+			font-size: 14px;
+			height: 100%;
+			margin-right: 10px;
+			font-weight: normal;
+			line-height: 22px;
+			color:black;
+			overflow: hidden;
+		}
+		.more {
+			display: none;
+			position: absolute;
+			top: 100px;
+			left: 0px;
+			text-align: right;
+			font-weight: bold;
+			padding-right: 7px;
+			line-height: 50px;
+			vertical-align: bottom;
+			width: 773px;
+			height: 40px;
+			background: url('/Content/images/more.png') left top no-repeat;
+			@include transition(all);
+		}
+	}
+}
+	
+#next_t, #prev_t {
+	position: absolute;
+	font-size: 70px;
+	top: 50%;
+	width: 24px;
+	height: 38px;
+	background-position: 0 -38px;
+	background-repeat: no-repeat;
+	text-indent: -9999px;
+	overflow: hidden;
+	&:hover {
+		background-position: 0 -76px;
+	}
+	&.disabled {
+		opacity : 0.2;
+		filter: alpha(opacity=20); /* msie */
+	}
+}
+#next_t {
+	right: 5px;
+	background-image: url('/Content/images/timeline/next.png');
+}
+#prev_t {
+	left: 5px;
+	background-image: url('/Content/images/timeline/prev.png');
+}

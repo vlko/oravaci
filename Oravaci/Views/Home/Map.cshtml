@@ -1,0 +1,35 @@
+﻿<div id="map_canvas" ng-controller="MapCtrl" ng-style="{'height':height}"></div>
+@{Html.ScriptInlineInclude(
+@<script>
+	 app.factory('GoogleMaps', function () {
+		 function initialize(map_id, centerLocation, zoom) {
+			 var myOptions = {
+				 zoom: zoom,
+				 center: centerLocation,
+				 mapTypeId: google.maps.MapTypeId.ROADMAP
+			 };
+			 return new google.maps.Map(document.getElementById(map_id), myOptions);
+		 }
+
+		 var map_id = 'map_canvas';
+		 var namestovo = new google.maps.LatLng(49.40638, 19.48388);
+		 var zoom = 9;
+		 var map = initialize(map_id, namestovo, zoom);
+
+		 return map;
+
+	 });
+
+	 function MapCtrl($scope, GoogleMaps, layoutService) {
+	     $scope.map = GoogleMaps;
+
+	     $scope.$on("handleLayout", function () {
+	         $scope.height = layoutService.mapHeight + "px";
+	         $scope.$apply();
+	     });
+	     layoutService.broadcastLayout();
+	 }
+
+	 MapCtrl.$inject = ['$scope', 'GoogleMaps', 'layoutService'];
+</script>
+);}

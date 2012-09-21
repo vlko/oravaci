@@ -1,0 +1,86 @@
+﻿@{
+	ViewBag.Title = "Home Page";
+    Html.ScriptRootInclude("https://maps.googleapis.com/maps/api/js?sensor=false");
+}
+@{
+Html.ScriptInlineInclude(
+    @<script>
+         var app = angular.module("oravaci", []);
+
+         app.factory('layoutService', function ($rootScope) {
+             var layoutService = {};
+
+             layoutService.height = $(window).height() + "px";
+             layoutService.selectionActive = false;
+             
+             angular.element(window).bind('resize', function () {
+                 layoutService.broadcastLayout();
+             });
+
+             $rootScope.$on("selectionActivated", function (event, detailActive, extendedDetail) {
+                 layoutService.detailActive = detailActive;
+                 layoutService.extendedDetail = extendedDetail;
+                 layoutService.broadcastLayout();
+             });
+
+             layoutService.broadcastLayout = function () {
+                 var windowHeight = $(window).height();
+                 var detailHeight = layoutService.detailActive ? (layoutService.extendedDetail ? Math.max(200, windowHeight * 0.7) : 200) : 0;
+                 layoutService.detailHeight = detailHeight;
+                 layoutService.height = windowHeight;
+                 layoutService.mapHeight = (windowHeight - detailHeight);
+                 $rootScope.$broadcast('handleLayout');
+             };
+
+             return layoutService;
+         });
+
+         
+         /*var poly;
+         var map;
+
+         function resize() {
+             $("#content").height($(window).height())
+             $("#map_canvas").height($("#content").height());
+         }
+         function initialize() {
+             var namestovo = new google.maps.LatLng(49.40638, 19.48388);
+             var mapOptions = {
+                 zoom: 9,
+                 center: namestovo,
+                 mapTypeId: google.maps.MapTypeId.ROADMAP
+             };
+             $(window).resize(resize);
+             resize();
+             map = new google.maps.Map(document.getElementById('map_canvas'), mapOptions);
+             var polyOptions = {
+                 strokeColor: '#000000',
+                 strokeOpacity: 1.0,
+                 strokeWeight: 3
+             }
+             poly = new google.maps.Polyline(polyOptions);
+             poly.setMap(map);
+             // Add a listener for the click event
+             google.maps.event.addListener(map, 'click', addLatLng);
+         }
+
+         function addLatLng(event) {
+             var path = poly.getPath();
+             // Because path is an MVCArray, we can simply append a new coordinate
+             // and it will automatically appear
+             path.push(event.latLng);
+             // Add a new marker at the new plotted point on the polyline.
+             var marker = new google.maps.Marker({
+                 position: event.latLng,
+                 title: '#' + path.getLength(),
+                 map: map
+             });
+         }
+
+         $(initialize());*/
+     </script>
+    );
+}
+@Html.Partial("Map")
+@Html.Partial("Items")
+

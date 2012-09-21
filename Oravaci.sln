@@ -1,0 +1,26 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 2012
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Oravaci", ".\Oravaci\Oravaci.csproj", "{D0CA8052-5805-4F71-A77D-99B7235E4CB0}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OravaciData", ".\OravaciData\OravaciData.csproj", "{26326FD9-7E76-4B86-B48C-C6D3B077D5A4}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{D0CA8052-5805-4F71-A77D-99B7235E4CB0}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D0CA8052-5805-4F71-A77D-99B7235E4CB0}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D0CA8052-5805-4F71-A77D-99B7235E4CB0}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D0CA8052-5805-4F71-A77D-99B7235E4CB0}.Release|Any CPU.Build.0 = Release|Any CPU
+		{26326FD9-7E76-4B86-B48C-C6D3B077D5A4}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{26326FD9-7E76-4B86-B48C-C6D3B077D5A4}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{26326FD9-7E76-4B86-B48C-C6D3B077D5A4}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{26326FD9-7E76-4B86-B48C-C6D3B077D5A4}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal
