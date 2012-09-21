@@ -35,7 +35,41 @@ Html.ScriptInlineInclude(
              return layoutService;
          });
 
+         app.directive('formInput', function() {
+             return {
+                 restrict: 'E',
+                 compile: function(element, attrs) {
+                     var type = attrs.type || 'text';
+                     var required = attrs.hasOwnProperty('required') ? "required='required'" : "";
+                     var htmlText = '<span>' +
+                         '<label for="' + attrs.formId + '">' + attrs.label + '</label>' +
+                         '<input type="' + type + '" ng-model="' + attrs.formId + '" ' + required + " " + attrs.type + '>' +
+                         '</span>';
+                     element.replaceWith(htmlText);
+                 }
+             };
+         });
          
+         app.directive('integer', function () {
+             var INTEGER_REGEXP = /^\-?\d+$/;
+             return {
+                 require: 'ngModel',
+                 link: function(scope, elm, attrs, ctrl) {
+                     ctrl.$parsers.unshift(function(viewValue) {
+                         if (INTEGER_REGEXP.test(viewValue)) {
+                             // it is valid
+                             ctrl.$setValidity('integer', true);
+                             return parseInt(viewValue);
+                         } else {
+                             // it is invalid, return undefined (no model update)
+                             ctrl.$setValidity('integer', false);
+                             return undefined;
+                         }
+                     });
+                 }
+             };
+         });
+
          /*var poly;
          var map;
 

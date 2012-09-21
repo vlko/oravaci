@@ -1644,6 +1644,20 @@ body {
       right: 0;
       font-size: 15px;
       line-height: 15px; }
+    #content #selected_info form.single_line span {
+      margin-left: 5px;
+      display: inline-block; }
+    #content #selected_info input.ng-invalid, #content #selected_info textarea.ng-invalid {
+      background: #fae5e3;
+      border-color: #c87872;
+      -webkit-box-shadow: 0 0 3px rgba(171, 41, 32, 0.25);
+      -moz-box-shadow: 0 0 3px rgba(171, 41, 32, 0.25);
+      box-shadow: 0 0 3px rgba(171, 41, 32, 0.25); }
+      #content #selected_info input.ng-invalid:focus, #content #selected_info textarea.ng-invalid:focus {
+        border-color: #b9554d;
+        -webkit-box-shadow: 0 0 6px rgba(171, 41, 32, 0.5);
+        -moz-box-shadow: 0 0 6px rgba(171, 41, 32, 0.5);
+        box-shadow: 0 0 6px rgba(171, 41, 32, 0.5); }
   #content #selected_info.visible {
     height: 200px; }
 
@@ -1734,7 +1748,7 @@ body {
     padding-bottom: 60px; }
     #issues.extended .selected .more {
       display: none; }
-    #issues.extended .selected p {
+    #issues.extended .selected p.text {
       overflow: auto; }
   #issues li {
     width: 800px;
@@ -1773,7 +1787,7 @@ body {
       font-size: 48px;
       margin: 15px 10px 5px 30px;
       text-shadow: #000 1px 1px 2px; }
-    #issues li p {
+    #issues li p.text {
       padding: 5px 10px 5px 35px;
       font-size: 14px;
       height: 100%;

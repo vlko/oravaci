@@ -218,6 +218,20 @@ body {
 			font-size: 15px;
 			line-height: 15px;
 		}
+		form.single_line span {
+			margin-left: 5px;
+			display: inline-block;
+		}
+		input.ng-invalid, textarea.ng-invalid {
+			background: lighten($red, 57%);
+			$error-text: desaturate(lighten($red, 25%), 25%);
+			border-color: $error-text;
+			@include box-shadow(0 0 3px rgba(171,41,32,.25));
+			&:focus {
+			  border-color: darken($error-text, 10%);
+			  @include box-shadow(0 0 6px rgba(171,41,32,.5));
+			}
+		}
 	}
 	#selected_info.visible {
 		height: $selectedInfoDefaultHeight;
@@ -282,7 +296,7 @@ body {
 				.more {
 					display:none;
 				}
-				p {
+				p.text {
 					overflow:auto;
 				}
 			}
@@ -331,7 +345,7 @@ body {
 			margin: 15px 10px 5px 30px;
 			text-shadow: #000 1px 1px 2px;
 		}
-		p {
+		p.text {
 			padding: 5px 10px 5px 35px;
 			font-size: 14px;
 			height: 100%;

@@ -2,13 +2,28 @@
     
     <div id="selected_info" ng-class="{visible:selectedItem}" ng-style="{'height':detailHeight}">
         <div class="content">
-            <h1 resize-timeline>{{selectedItem.Name}} {{selectedItem.LastName}}</h1>
+            <h1>{{selectedItem.Name}} {{selectedItem.LastName}} <a  ng-hide="editMode" ng-click="setEditMode()">Edit</a></h1>
             
             <div id="timeline" ng-style="{'height':detailHeight}">
+                <form ng-show="editMode" class="form-stacked single_line">
+                    <form-input label="Meno" form-id="selectedItem.Name" required></form-input>
+                    <form-input label="Priezvisko" form-id="selectedItem.LastName" required></form-input>
+                    <form-input label="Povolanie" form-id="selectedItem.Occupation"></form-input>
+                    <span><button class="btn" ng-click="addEvent()">Pridať udalosť</button></span>
+                    <span><button class="btn primary" ng-click="storeNew()">Uložiť</button></span>
+                </form>
                 <ul id="issues" ng-style="{'height':detailContentHeight}" ng-class="{extended:extendedDetail}">
                     <li id="{{item.Id}}" ng-style="{'height':detailContentPHeight}" ng-repeat="item in selectedItem.TimeData">
                         <h2>{{item.Title}}</h2>
-                        <p ng-bind-html-unsafe="item.Text"></p>
+                        <p ng-hide="editMode" ng-bind-html-unsafe="item.Text" class="text"></p>
+                        <div ng-show="editMode" class="text">
+                            <form>
+                                <span class="f_right"><button class="btn" ng-click="removeEvent($index)">Odobrat</button></span>
+                                <form-input label="Rok" form-id="item.Id" type="integer" required></form-input><span class="help-inline">Udalosti sa automatický zoradia pri uložení.</span><br/>
+                                <form-input label="Titulok" form-id="item.Title" required></form-input><br/>
+                                <form-input label="Text" form-id="item.Text"></form-input>
+                            </form>
+                        </div>
                         <a class="more" ng-click="detailExtended()">viac...</a>
                     </li>
                 </ul>
@@ -107,9 +122,10 @@
              { Name: "Marián5", LastName: "Vlčák", Occupation: "coder" }
          ];
 
+         // handle paging
          $scope.paging = function(direction) {
              if (direction > 0) {
-                 if ($scope.itemsPerScreen * (page + 1) < $scope.items.length) {
+                 if ($scope.itemsPerScreen * (page + 1) < $scope.count) {
                      ++page;
                      $scope.loadItems();
                      $scope.animationDirection = "anim_next";
@@ -125,6 +141,7 @@
              }
          };
 
+         // load items
          $scope.loadItems = function() {
              var result = Enumerable.From(items);
              if ($scope.query) {
@@ -135,11 +152,18 @@
                          || item.LastName.toLowerCase().indexOf(query) >= 0;
                  });
              }
+             
+             $scope.count = result.Count() + 1;
              $scope.items = result.Skip($scope.itemsPerScreen * page).Take($scope.itemsPerScreen + 1).ToArray();
+             
+             if ($scope.items.length < $scope.itemsPerScreen) {
+                 $scope.items.push({ action: "add", Name: "Add New", Img: "/Content/images/add_item.png" });
+             }
              $(".prev").toggleClass("disabled", !page > 0);
-             $(".next").toggleClass("disabled", !($scope.itemsPerScreen * (page + 1) < $scope.items.length));
+             $(".next").toggleClass("disabled", !($scope.itemsPerScreen * (page + 1) < $scope.count));
          };
 
+         // reset map
          var resetMap = function () {
              if (polygon) {
                  polygon.setMap(null);
@@ -151,6 +175,7 @@
              markers = [];
          };
 
+         // init map
          var initMap = function(timeData) {
              resetMap();
 
@@ -197,58 +222,124 @@
              }
          };
 
-         $scope.select = function (index) {
-             Enumerable.From(items).ForEach(function (item) {
-                 item.selected = false;
-             });
-             $scope.selectedItem = $scope.items[index];
-             $scope.selectedItem.selected = true;
+         // select item handler
+         $scope.select = function(index) {
+             var selectedItem = $scope.items[index];
+             if (selectedItem.action) {
+                 $scope.editMode = -1;
+                 $scope.selectedItem = {};
+                 $scope.$emit("selectionActivated", true, true);
+             } else {
+                 $scope.editMode = false;
+                 Enumerable.From(items).ForEach(function(item) {
+                     item.selected = false;
+                 });
+                 $scope.selectedItem = selectedItem;
+                 $scope.selectedItem.selected = true;
+                 $scope.$emit("selectionActivated", true);
+             }
 
              initMap($scope.selectedItem.TimeData);
-
-             $scope.$emit("selectionActivated", true);
              timeline.resize();
          };
 
+         $scope.setEditMode = function () {
+             var index = $scope.items.indexOf($scope.selectedItem);
+             $scope.editMode = index + 1;
+             $scope.selectedItem = JSON.parse(JSON.stringify($scope.selectedItem));
+             $scope.$emit("selectionActivated", true, true);
+         };
+         
+         // add time event handler
+         $scope.addEvent = function() {
+             if (!$scope.selectedItem.TimeData) {
+                 $scope.selectedItem.TimeData = [];
+             }
+             $scope.selectedItem.TimeData.push({ Id: "Nová" });
+             $scope.$emit("selectionActivated", true, true);
+         };
+         
+         // remove time event handler
+         $scope.removeEvent = function (index) {
+             $scope.selectedItem.TimeData.splice(index, 1);
+             $scope.$emit("selectionActivated", true, true);
+         };
+
+         // store ne item handler
+         $scope.storeNew = function () {
+             $scope.selectedItem.TimeData = Enumerable
+                 .From($scope.selectedItem.TimeData)
+                 .OrderBy(function(item) { return item.Id; })
+                 .ToArray();
+             if ($scope.editMode == -1) {
+                 items.splice(0, 1, $scope.selectedItem);
+                 $scope.query = "";
+                 resetScope();
+                 $scope.loadItems();
+                 $scope.selectedItem(0);
+             }
+             else {
+                 var index = $scope.editMode - 1;
+                 var item = $scope.items[index];
+                 $scope.items[index] = $scope.selectedItem;
+                 items[items.indexOf(item)] = $scope.selectedItem;
+                 $scope.$emit("selectionActivated", true);
+                 $scope.editMode = false;
+             }
+         };
+
+         // on handleLayout broadcast
          $scope.$on("handleLayout", function() {
              $scope.height = layoutService.height;
              $scope.extendedDetail = layoutService.extendedDetail;
              $scope.detailHeight = layoutService.detailHeight + "px";
-             $scope.detailContentHeight = (Math.max(layoutService.detailHeight - 60, 0)) + "px";
-             $scope.detailContentPHeight = (Math.max(layoutService.detailHeight - 135, 0)) + "px";
+             var otherSize = $scope.editMode ? 130 : 60;
+             $scope.detailContentHeight = (Math.max(layoutService.detailHeight - otherSize, 0)) + "px";
+             $scope.detailContentPHeight = (Math.max(layoutService.detailHeight - (otherSize + 75), 0)) + "px";
              $scope.itemsPerScreen = parseInt((parseInt($scope.height) - 230) / 100);
              $scope.loadItems();
              $scope.$apply();
              timeline.resize(true);
          });
 
+         // detail expanded handler
          $scope.detailExtended = function() {
              $scope.$emit("selectionActivated", true, true);
          };
          
+         // watch selectedItem change
          $scope.$watch("selectedItem", function (value) {
-             if (value && (!value.TimeData || !value.TimeData.length)) {
+             if (!$scope.editMode && value && (!value.TimeData || !value.TimeData.length)) {
                  value.TimeData = emptyTimeData;
              }
          });
-
          
+         $scope.$watch("selectedItem.TimeData", function (value) {
+             if ($scope.editMode) {
+                 timeline.resize(true);
+             }
+         }, true);
 
-         $scope.$watch("query", function (value) {
-             // reset query
+         var resetScope = function() {
              $scope.animationDirection = "anim_next";
              $scope.page = 1;
              Enumerable.From(items).ForEach(function (item) {
                  item.selected = false;
              });
              $scope.selectedItem = undefined;
+             $scope.editMode = false;
              $scope.$emit("selectionActivated", false);
 
              resetMap();
-             
+         };
+         
+         // watch query change
+         $scope.$watch("query", function (value) {
+             resetScope();
              $scope.loadItems();
          });
          
+         // watch items change
          $scope.$watch("items", function (newItems, oldItems) {
              if (listObserver) {
                  listObserver.dispose();
@@ -278,6 +369,7 @@
                  $(".item-" + Math.abs(item)).removeClass("anim");
              });
          });
+         
          layoutService.broadcastLayout();
      }
 
