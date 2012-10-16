@@ -1,4 +1,6 @@
 ﻿using System;
+using OravaciData.Indexes;
+using OravaciData.Model;
 using Raven.Client;
 using vlko.core.RavenDB;
 
@@ -15,8 +17,7 @@ namespace OravaciData
         {
             return new Type[]
                        {
-                           //typeof(Device),
-                           //typeof(Celebrity)
+                           typeof(Person)
                        };
         }
 
@@ -26,10 +27,7 @@ namespace OravaciData
         /// <param name="documentStore">The document store.</param>
         public void RegisterIndexes(IDocumentStore documentStore)
         {
-            //new CelebritySearchIndex().Execute(documentStore);
-            //new CelebrityViewIndex().Execute(documentStore);
-            //new CelebritySortIndex().Execute(documentStore);
-            //new DeviceSortIndex().Execute(documentStore);
+            new PersonIndex().Execute(documentStore);
         }
 
         /// <summary>

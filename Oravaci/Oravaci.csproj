@@ -104,6 +104,9 @@
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\packages\RavenDB.Database.1.0.960\lib\net40\Raven.Backup.exe</HintPath>
     </Reference>
+    <Reference Include="Raven.Bundles.Versioning">
+      <HintPath>..\packages\RavenDB.Bundles.Versioning.1.0.960\lib\net40\Raven.Bundles.Versioning.dll</HintPath>
+    </Reference>
     <Reference Include="Raven.Client.Embedded, Version=1.0.0.0, Culture=neutral, PublicKeyToken=37f41c7f99471593, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\packages\RavenDB.Embedded.1.0.960\lib\net40\Raven.Client.Embedded.dll</HintPath>
@@ -212,6 +215,7 @@
     </Compile>
     <Compile Include="Controllers\AccountController.cs" />
     <Compile Include="Controllers\HomeController.cs" />
+    <Compile Include="Controllers\PersonController.cs" />
     <Compile Include="Global.asax.cs">
       <DependentUpon>Global.asax</DependentUpon>
     </Compile>
@@ -624,7 +628,6 @@
       <LastGenOutput>_colors_mixins.css</LastGenOutput>
     </None>
     <None Include="Content\_forms.scss">
-      <Generator>ScssGenerator</Generator>
       <LastGenOutput>_forms.css</LastGenOutput>
     </None>
     <None Include="Content\_pattern_buttons.scss">

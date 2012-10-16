@@ -2,25 +2,25 @@
     
     <div id="selected_info" ng-class="{visible:selectedItem}" ng-style="{'height':detailHeight}">
         <div class="content">
-            <h1>{{selectedItem.Name}} {{selectedItem.LastName}} <a  ng-hide="editMode" ng-click="setEditMode()">Edit</a></h1>
+            <div class="user_name">{{selectedItem.FullName}} <a  ng-hide="editMode" ng-click="setEditMode()">Edit</a></div>
             
             <div id="timeline" ng-style="{'height':detailHeight}">
                 <form ng-show="editMode" class="form-stacked single_line">
-                    <form-input label="Meno" form-id="selectedItem.Name" required></form-input>
-                    <form-input label="Priezvisko" form-id="selectedItem.LastName" required></form-input>
+                    <form-input label="Meno a Priezvisko" form-id="selectedItem.FullName" required></form-input>
                     <form-input label="Povolanie" form-id="selectedItem.Occupation"></form-input>
                     <span><button class="btn" ng-click="addEvent()">Pridať udalosť</button></span>
                     <span><button class="btn primary" ng-click="storeNew()">Uložiť</button></span>
                 </form>
                 <ul id="issues" ng-style="{'height':detailContentHeight}" ng-class="{extended:extendedDetail}">
                     <li id="{{item.Id}}" ng-style="{'height':detailContentPHeight}" ng-repeat="item in selectedItem.TimeData">
-                        <h2>{{item.Title}}</h2>
+                        <h1>{{item.Title}}</h1>
                         <p ng-hide="editMode" ng-bind-html-unsafe="item.Text" class="text"></p>
                         <div ng-show="editMode" class="text">
                             <form>
                                 <span class="f_right"><button class="btn" ng-click="removeEvent($index)">Odobrat</button></span>
                                 <form-input label="Rok" form-id="item.Id" type="integer" required></form-input><span class="help-inline">Udalosti sa automatický zoradia pri uložení.</span><br/>
                                 <form-input label="Titulok" form-id="item.Title" required></form-input><br/>
+                                <span><label>Pozícia</label><span class="uneditable-input">{{item.Latitude | number: 6}},{{item.Longitude | number: 6}}</span><button ng-click="getCurrentPosition(item)" class="btn">Aktuálna pozícia</button></span><br>
                                 <form-input label="Text" form-id="item.Text"></form-input>
                             </form>
                         </div>
@@ -40,8 +40,8 @@
     <div id="search" class="item"><img src="/Content/images/search.png"/><input  ng-model="query" /></div>
 
     <div ng-repeat="item in items" class="item item-{{$index}} anim" ng-click="select($index)" ng-class="{selected:item.selected}">
-        <img ng:src='{{item.Img}}' alt="{{item.Name}} {{item.LastName}}"/>
-        <strong class="name">{{item.Name}} {{item.LastName}}</strong>
+        <img ng:src='{{item.Img}}' alt="{{item.FullName}}"/>
+        <strong class="name">{{item.FullName}}</strong>
         <span class="occupation">{{item.Occupation}}</span>
     </div>
 
@@ -50,7 +50,7 @@
 </span>
 @{Html.ScriptInlineInclude(
 @<script>
-     function ItemCtrl($scope, GoogleMaps, layoutService) {
+     function ItemCtrl($scope, GoogleMaps, layoutService, $http) {
          var timerInterval = Rx.Observable.interval(100);
          var page = 0;
          var listObserver = undefined;
@@ -63,64 +63,50 @@
 
          var polygon = undefined;
          var markers = [];
+         var editMarker = undefined;
 
-         var items = [
-             { Name: "Pavol Orszagh", LastName: "Hviezdoslav", Occupation: "spisovateľ", Img: "/users/hviezdoslav.jpg" },
-             {
-                 Name: "Ján", LastName: "Majzel", Occupation: "IT support specialist", Img: "/users/janci.jpg",
-                 TimeData: [
-                     { Id: 1900, Latitude: 49.40638, Longitude: 19.48388, Title: "Narodeny vo Vyšnom Kúbine", Text: "Donec semper quam scelerisque tortor<br> dictum<br> gravida. In <br>hac habitasse <br>platea di<br>ctumst<br>. Nam <br>pulvinar, od<br>io sed rhoncus sus<br>cipit, sem <br>diam ultrices mauris, eu consequat <br>purus<br> <br>metus<br> <br>eu<br> <br>velit. <br>Proin <br>metus odio, aliquam eget molestie nec, gravida ut sapien. Phasellus quis est sed turpis sollicitudin venenatis sed eu odio. Praesent eget neque eu eros interdum malesuada non vel leo. Sed fringilla porta ligula." },
-                     { Id: 1920, Latitude: 49.43638, Longitude: 19.45388, Title: "Zije v namestove", Text: "Donec semper quam scelerisque tortor dictum gravida. In hac habitasse platea dictumst. Nam pulvinar, odio sed rhoncus suscipit, sem diam ultrices mauris, eu consequat purus metus eu velit. Proin metus odio, aliquam eget molestie nec, gravida ut sapien. Phasellus quis est sed turpis sollicitudin venenatis sed eu odio. Praesent eget neque eu eros interdum malesuada non vel leo. Sed fringilla porta ligula." },
-                     { Id: 1930, Latitude: 46.40638, Longitude: 17.48388, Title: "To tu zomrel", Text: "Donec semper quam scelerisque tortor dictum gravida. In hac habitasse platea dictumst. Nam pulvinar, odio sed rhoncus suscipit, sem diam ultrices mauris, eu consequat purus metus eu velit. Proin metus odio, aliquam eget molestie nec, gravida ut sapien. Phasellus quis est sed turpis sollicitudin venenatis sed eu odio. Praesent eget neque eu eros interdum malesuada non vel leo. Sed fringilla porta ligula." }
-                 ]
-             },
-             {
-                 Name: "Marián", LastName: "Vlčák", Occupation: "coder", Img: "/users/vlko.png",
-                 TimeData: [
-                     { Id: 1900, Latitude: 49.40638, Longitude: 19.48388, Title: "Narodeny vo Vyšnom Kúbine", Text: "Donec semper quam scelerisque tortor<br> dictum<br> gravida. In <br>hac habitasse <br>platea di<br>ctumst<br>. Nam <br>pulvinar, od<br>io sed rhoncus sus<br>cipit, sem <br>diam ultrices mauris, eu consequat <br>purus<br> <br>metus<br> <br>eu<br> <br>velit. <br>Proin <br>metus odio, aliquam eget molestie nec, gravida ut sapien. Phasellus quis est sed turpis sollicitudin venenatis sed eu odio. Praesent eget neque eu eros interdum malesuada non vel leo. Sed fringilla porta ligula." },
-                     { Id: 1920, Latitude: 49.43638, Longitude: 19.45388, Title: "Zije v namestove", Text: "Donec semper quam scelerisque tortor dictum gravida. In hac habitasse platea dictumst. Nam pulvinar, odio sed rhoncus suscipit, sem diam ultrices mauris, eu consequat purus metus eu velit. Proin metus odio, aliquam eget molestie nec, gravida ut sapien. Phasellus quis est sed turpis sollicitudin venenatis sed eu odio. Praesent eget neque eu eros interdum malesuada non vel leo. Sed fringilla porta ligula." },
-                     { Id: 1930, Latitude: 46.40638, Longitude: 17.48388, Title: "To tu zomrel", Text: "Donec semper quam scelerisque tortor dictum gravida. In hac habitasse platea dictumst. Nam pulvinar, odio sed rhoncus suscipit, sem diam ultrices mauris, eu consequat purus metus eu velit. Proin metus odio, aliquam eget molestie nec, gravida ut sapien. Phasellus quis est sed turpis sollicitudin venenatis sed eu odio. Praesent eget neque eu eros interdum malesuada non vel leo. Sed fringilla porta ligula." },
-                     { Id: 1940, Latitude: 50.40638, Longitude: 19.48388, Title: "To tu zomrel", Text: "Donec semper quam scelerisque tortor dictum gravida. In hac habitasse platea dictumst. Nam pulvinar, odio sed rhoncus suscipit, sem diam ultrices mauris, eu consequat purus metus eu velit. Proin metus odio, aliquam eget molestie nec, gravida ut sapien. Phasellus quis est sed turpis sollicitudin venenatis sed eu odio. Praesent eget neque eu eros interdum malesuada non vel leo. Sed fringilla porta ligula." },
-                     { Id: 1950, Latitude: 49.43638, Longitude: 20.45388, Title: "To tu zomrel", Text: "Donec semper quam scelerisque tortor dictum gravida. In hac habitasse platea dictumst. Nam pulvinar, odio sed rhoncus suscipit, sem diam ultrices mauris, eu consequat purus metus eu velit. Proin metus odio, aliquam eget molestie nec, gravida ut sapien. Phasellus quis est sed turpis sollicitudin venenatis sed eu odio. Praesent eget neque eu eros interdum malesuada non vel leo. Sed fringilla porta ligula." }
-                 ]
-             },
-             {
-                 Name: "Marián", LastName: "Vlčák", Occupation: "coder", Img: "/users/janci.jpg",
-                 TimeData: [
-                     { Id: 190, Latitude: 46.80638, Longitude: 16.48388, Title:0, Title: "Narodeny vo Vyšnom Kúbine", Text: "Donec semper quam scelerisque tortor<br> dictum<br> gravida. In <br>hac habitasse <br>platea di<br>ctumst<br>. Nam <br>pulvinar, od<br>io sed rhoncus sus<br>cipit, sem <br>diam ultrices mauris, eu consequat <br>purus<br> <br>metus<br> <br>eu<br> <br>velit. <br>Proin <br>metus odio, aliquam eget molestie nec, gravida ut sapien. Phasellus quis est sed turpis sollicitudin venenatis sed eu odio. Praesent eget neque eu eros interdum malesuada non vel leo. Sed fringilla porta ligula." },
-                     { Id: 1950, Latitude: 49.40638, Longitude: 19.48388, Title: "To tu zomrel", Text: "Donec semper quam scelerisque tortor dictum gravida. In hac habitasse platea dictumst. Nam pulvinar, odio sed rhoncus suscipit, sem diam ultrices mauris, eu consequat purus metus eu velit. Proin metus odio, aliquam eget molestie nec, gravida ut sapien. Phasellus quis est sed turpis sollicitudin venenatis sed eu odio. Praesent eget neque eu eros interdum malesuada non vel leo. Sed fringilla porta ligula." }
-                 ]
-             },
-             {
-                 Name: "Marián", LastName: "Vlčák", Occupation: "coder", Img: "/users/vlko.png",
-                 TimeData: [
-                     { Id: 1900, Title: "Narodeny vo Vyšnom Kúbine", Text: "Donec semper quam scelerisque tortor<br> dictum<br> gravida. In <br>hac habitasse <br>platea di<br>ctumst<br>. Nam <br>pulvinar, od<br>io sed rhoncus sus<br>cipit, sem <br>diam ultrices mauris, eu consequat <br>purus<br> <br>metus<br> <br>eu<br> <br>velit. <br>Proin <br>metus odio, aliquam eget molestie nec, gravida ut sapien. Phasellus quis est sed turpis sollicitudin venenatis sed eu odio. Praesent eget neque eu eros interdum malesuada non vel leo. Sed fringilla porta ligula." },
-                     { Id: 1920, Title: "Zije v namestove", Text: "Donec semper quam scelerisque tortor dictum gravida. In hac habitasse platea dictumst. Nam pulvinar, odio sed rhoncus suscipit, sem diam ultrices mauris, eu consequat purus metus eu velit. Proin metus odio, aliquam eget molestie nec, gravida ut sapien. Phasellus quis est sed turpis sollicitudin venenatis sed eu odio. Praesent eget neque eu eros interdum malesuada non vel leo. Sed fringilla porta ligula." },
-                     { Id: 1930, Title: "To tu zomrel", Text: "Donec semper quam scelerisque tortor dictum gravida. In hac habitasse platea dictumst. Nam pulvinar, odio sed rhoncus suscipit, sem diam ultrices mauris, eu consequat purus metus eu velit. Proin metus odio, aliquam eget molestie nec, gravida ut sapien. Phasellus quis est sed turpis sollicitudin venenatis sed eu odio. Praesent eget neque eu eros interdum malesuada non vel leo. Sed fringilla porta ligula." },
-                     { Id: 1940, Title: "To tu zomrel", Text: "Donec semper quam scelerisque tortor dictum gravida. In hac habitasse platea dictumst. Nam pulvinar, odio sed rhoncus suscipit, sem diam ultrices mauris, eu consequat purus metus eu velit. Proin metus odio, aliquam eget molestie nec, gravida ut sapien. Phasellus quis est sed turpis sollicitudin venenatis sed eu odio. Praesent eget neque eu eros interdum malesuada non vel leo. Sed fringilla porta ligula." },
-                     { Id: 1950, Title: "To tu zomrel", Text: "Donec semper quam scelerisque tortor dictum gravida. In hac habitasse platea dictumst. Nam pulvinar, odio sed rhoncus suscipit, sem diam ultrices mauris, eu consequat purus metus eu velit. Proin metus odio, aliquam eget molestie nec, gravida ut sapien. Phasellus quis est sed turpis sollicitudin venenatis sed eu odio. Praesent eget neque eu eros interdum malesuada non vel leo. Sed fringilla porta ligula." }
-                 ]
-             },
-             {
-                 Name: "Marián", LastName: "Vlčák", Occupation: "coder", Img: "/users/janci.jpg",
-                 TimeData: [
-                     { Id: 1950, Title: "To tu zomrel", Text: "Donec semper quam scelerisque tortor dictum gravida. In hac habitasse platea dictumst. Nam pulvinar, odio sed rhoncus suscipit, sem diam ultrices mauris, eu consequat purus metus eu velit. Proin metus odio, aliquam eget molestie nec, gravida ut sapien. Phasellus quis est sed turpis sollicitudin venenatis sed eu odio. Praesent eget neque eu eros interdum malesuada non vel leo. Sed fringilla porta ligula." }
-                 ]
-             },
-             { Name: "Marián", LastName: "Vlčák", Occupation: "coder", Img: "/users/vlko.png" },
-             { Name: "Marián1", LastName: "Vlčák", Occupation: "coder" },
-             { Name: "Marián2", LastName: "Vlčák", Occupation: "coder" },
-             { Name: "Marián3", LastName: "Vlčák", Occupation: "coder" },
-             { Name: "Marián4", LastName: "Vlčák", Occupation: "coder" },
-             { Name: "Marián5", LastName: "Vlčák", Occupation: "coder" },
-             { Name: "Marián", LastName: "Vlčák", Occupation: "coder", Img: "/users/janci.jpg" },
-             { Name: "Marián", LastName: "Vlčák", Occupation: "coder", Img: "/users/vlko.png" },
-             { Name: "Marián1", LastName: "Vlčák", Occupation: "coder" },
-             { Name: "Marián2", LastName: "Vlčák", Occupation: "coder" },
-             { Name: "Marián3", LastName: "Vlčák", Occupation: "coder" },
-             { Name: "Marián4", LastName: "Vlčák", Occupation: "coder" },
-             { Name: "Marián5", LastName: "Vlčák", Occupation: "coder" }
-         ];
+         var timelineDeferAction = undefined;
+
+         var items = [];
+
+         var query = new Rx.Subject();
+         
+         var throttledQuery = query
+                .select(function (text) {
+                    return (text && text.length > 2) ? text : undefined;
+                })
+                .throttle(500)
+                .distinctUntilChanged();
+         var itemsQuery = throttledQuery
+             .select(function (text) {
+                 var subject = new Rx.AsyncSubject();
+                 var url = text ? "@Routes.SearchOfPerson" : "@Routes.AllOfPerson";
+                 $http.post(url, { query: text })
+                     .success(function(data) {
+                         subject.onNext(data);
+                         subject.onCompleted();
+                     })
+                     .error(function(data, status, headers, config) {
+                         subject.OnError({
+                             data: data,
+                             status: status,
+                             headers: headers,
+                             config: config
+                         });
+                     });
+                 return subject;
+             })
+             .switchLatest();
+         
+         itemsQuery.subscribe(function (data) {
+             items = data;
+             $scope.loadItems();
+             $scope.$apply();
+         }, function (e) {
+             items = [{ action: "fail", FullName: "Query Fails", Occupation: e }];
+             $scope.loadItems();
+             $scope.$apply();
+         });
 
          // handle paging
          $scope.paging = function(direction) {
@@ -144,20 +130,12 @@
          // load items
          $scope.loadItems = function() {
              var result = Enumerable.From(items);
-             if ($scope.query) {
-                 var query = $scope.query.toLowerCase();
-
-                 result = result.Where(function(item) {
-                     return item.Name.toLowerCase().indexOf(query) >= 0
-                         || item.LastName.toLowerCase().indexOf(query) >= 0;
-                 });
-             }
-             
+            
              $scope.count = result.Count() + 1;
              $scope.items = result.Skip($scope.itemsPerScreen * page).Take($scope.itemsPerScreen + 1).ToArray();
              
              if ($scope.items.length < $scope.itemsPerScreen) {
-                 $scope.items.push({ action: "add", Name: "Add New", Img: "/Content/images/add_item.png" });
+                 $scope.items.push({ action: "add", FullName: "Add New", Img: "/Content/images/add_item.png" });
              }
              $(".prev").toggleClass("disabled", !page > 0);
              $(".next").toggleClass("disabled", !($scope.itemsPerScreen * (page + 1) < $scope.count));
@@ -176,7 +154,7 @@
          };
 
          // init map
-         var initMap = function(timeData) {
+         var initMap = function(timeData, refresh) {
              resetMap();
 
              var computeBounds = function(polygon) {
@@ -209,7 +187,7 @@
                          markers.push(marker);
                      }
                  });
-                 if (markers.length) {
+                 if (markers.length && !refresh) {
                      var bounds = computeBounds(polygon);
                      GoogleMaps.setCenter(bounds.getCenter());
                      GoogleMaps.fitBounds(bounds);
@@ -222,12 +200,35 @@
              }
          };
 
+         // current position handler
+         $scope.getCurrentPosition = function(item) {
+             var currentPosition = GoogleMaps.getCenter();
+             item.Latitude = currentPosition.lat();
+             item.Longitude = currentPosition.lng();
+             initMap($scope.selectedItem.TimeData, true);
+         };
+
+         $scope.timelineRedraw = function(onlyResize) {
+             $scope.$evalAsync(function () {
+                 timeline.resize(onlyResize);
+                 if (timelineDeferAction) {
+                     timelineDeferAction();
+                 }
+                 timelineDeferAction = undefined;
+             });
+         };
+         
          // select item handler
          $scope.select = function(index) {
              var selectedItem = $scope.items[index];
+             
+             timelineDeferAction = function () {
+                 $("#dates a:first").click();
+             };
+             
              if (selectedItem.action) {
                  $scope.editMode = -1;
-                 $scope.selectedItem = {};
+                 $scope.selectedItem = { Img: "/Content/images/anonym.png"};
                  $scope.$emit("selectionActivated", true, true);
              } else {
                  $scope.editMode = false;
@@ -238,15 +239,29 @@
                  $scope.selectedItem.selected = true;
                  $scope.$emit("selectionActivated", true);
              }
-
+             
+             if (editMarker) {
+                 editMarker.setMap(null);
+                 editMarker.unbindAll();
+                 editMarker = undefined;
+             }
+             
              initMap($scope.selectedItem.TimeData);
-             timeline.resize();
          };
 
+         // set edit mode handler
          $scope.setEditMode = function () {
              var index = $scope.items.indexOf($scope.selectedItem);
              $scope.editMode = index + 1;
              $scope.selectedItem = JSON.parse(JSON.stringify($scope.selectedItem));
+             
+             var crosshairShape = { coords: [0, 0, 0, 0], type: 'rect' };
+             editMarker = new google.maps.Marker({
+                 map: GoogleMaps,
+                 icon: '/Content/images/cross-hairs.gif',
+                 shape: crosshairShape
+             });
+             editMarker.bindTo('position', GoogleMaps, 'center');
              $scope.$emit("selectionActivated", true, true);
          };
          
@@ -257,28 +272,37 @@
              }
              $scope.selectedItem.TimeData.push({ Id: "Nová" });
              $scope.$emit("selectionActivated", true, true);
+             
+             timelineDeferAction = function () {
+                 $("#dates a:last").click();
+             };
          };
          
          // remove time event handler
          $scope.removeEvent = function (index) {
              $scope.selectedItem.TimeData.splice(index, 1);
              $scope.$emit("selectionActivated", true, true);
+             timelineDeferAction = function () {
+                 $("#dates a:eq(" + (index - 1) + ")").click();
+             };
          };
 
-         // store ne item handler
+         // store new item handler
          $scope.storeNew = function () {
              $scope.selectedItem.TimeData = Enumerable
                  .From($scope.selectedItem.TimeData)
                  .OrderBy(function(item) { return item.Id; })
                  .ToArray();
              if ($scope.editMode == -1) {
-                 items.splice(0, 1, $scope.selectedItem);
+                 $http.post("@Routes.storeOfPerson", $scope.selectedItem);
+                 items.splice(0, 0, $scope.selectedItem);
                  $scope.query = "";
                  resetScope();
                  $scope.loadItems();
                  $scope.selectedItem(0);
              }
              else {
+                 $http.post("@Routes.storeOfPerson", $scope.selectedItem);
                  var index = $scope.editMode - 1;
                  var item = $scope.items[index];
                  $scope.items[index] = $scope.selectedItem;
@@ -287,6 +311,8 @@
                  $scope.editMode = false;
              }
          };
+
+         
 
          // on handleLayout broadcast
          $scope.$on("handleLayout", function() {
@@ -299,7 +325,7 @@
              $scope.itemsPerScreen = parseInt((parseInt($scope.height) - 230) / 100);
              $scope.loadItems();
              $scope.$apply();
-             timeline.resize(true);
+             $scope.timelineRedraw(true);
          });
 
          // detail expanded handler
@@ -314,12 +340,12 @@
              }
          });
          
+         // watch selectedItem timedata change
          $scope.$watch("selectedItem.TimeData", function (value) {
-             if ($scope.editMode) {
-                 timeline.resize(true);
-             }
+             $scope.timelineRedraw(true);
          }, true);
 
+         // reset scope
          var resetScope = function() {
              $scope.animationDirection = "anim_next";
              $scope.page = 1;
@@ -336,7 +362,7 @@
          // watch query change
          $scope.$watch("query", function (value) {
              resetScope();
-             $scope.loadItems();
+             query.onNext(value);
          });
          
          // watch items change
@@ -369,10 +395,10 @@
                  $(".item-" + Math.abs(item)).removeClass("anim");
              });
          });
-         
+
          layoutService.broadcastLayout();
      }
 
-     ItemCtrl.$inject = ['$scope', 'GoogleMaps', 'layoutService'];
+     ItemCtrl.$inject = ['$scope', 'GoogleMaps', 'layoutService', '$http'];
 </script>
 );}

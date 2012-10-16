@@ -69,49 +69,6 @@ Html.ScriptInlineInclude(
                  }
              };
          });
-
-         /*var poly;
-         var map;
-
-         function resize() {
-             $("#content").height($(window).height())
-             $("#map_canvas").height($("#content").height());
-         }
-         function initialize() {
-             var namestovo = new google.maps.LatLng(49.40638, 19.48388);
-             var mapOptions = {
-                 zoom: 9,
-                 center: namestovo,
-                 mapTypeId: google.maps.MapTypeId.ROADMAP
-             };
-             $(window).resize(resize);
-             resize();
-             map = new google.maps.Map(document.getElementById('map_canvas'), mapOptions);
-             var polyOptions = {
-                 strokeColor: '#000000',
-                 strokeOpacity: 1.0,
-                 strokeWeight: 3
-             }
-             poly = new google.maps.Polyline(polyOptions);
-             poly.setMap(map);
-             // Add a listener for the click event
-             google.maps.event.addListener(map, 'click', addLatLng);
-         }
-
-         function addLatLng(event) {
-             var path = poly.getPath();
-             // Because path is an MVCArray, we can simply append a new coordinate
-             // and it will automatically appear
-             path.push(event.latLng);
-             // Add a new marker at the new plotted point on the polyline.
-             var marker = new google.maps.Marker({
-                 position: event.latLng,
-                 title: '#' + path.getLength(),
-                 map: map
-             });
-         }
-
-         $(initialize());*/
      </script>
     );
 }

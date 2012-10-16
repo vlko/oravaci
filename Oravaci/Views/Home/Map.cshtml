@@ -25,6 +25,9 @@
 
 	     $scope.$on("handleLayout", function () {
 	         $scope.height = layoutService.mapHeight + "px";
+	         setTimeout(function() {
+	             google.maps.event.trigger(GoogleMaps, 'resize');
+	         }, 1000);
 	         $scope.$apply();
 	     });
 	     layoutService.broadcastLayout();
