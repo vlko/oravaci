@@ -15,7 +15,16 @@ namespace OravaciData.Commands
         /// Gets all.
         /// </summary>
         /// <returns>All persons.</returns>
-        public Person[] GetAll()
+        public IQueryResult<Person> GetAll()
+        {
+            return new QueryLinqResult<Person>(SessionFactory<Person>.IndexQuery<PersonIndex>());
+        }
+
+        /// <summary>
+        /// Gets all.
+        /// </summary>
+        /// <returns>All persons.</returns>
+        public Person[] Top50()
         {
             return SessionFactory<Person>.IndexQuery<PersonIndex>().Take(50).ToArray();
         }

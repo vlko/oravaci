@@ -1,0 +1,33 @@
+﻿@model OravaciData.Model.Person
+@{
+    ViewBag.Title = "Edit";
+
+    if (string.IsNullOrEmpty(Layout) || Layout == "~/Views/Shared/_Layout.cshtml")
+    {
+        Layout = "~/Views/Shared/_NormalLayout.cshtml";
+    }
+
+    Script.RegisterValidationJs(Html);
+}
+<div class="ajax_ignore">
+    @Html.Link("back", "Back to List", (object)Routes.IndexOfThisFromThis) 
+</div>
+
+<h2>Edit</h2>
+
+@using (Html.BeginForm()) {
+    <div>
+        @Html.ValidationSummary(true)
+        <fieldset>
+            <legend>Fields</legend>
+            @Html.HiddenFor(model => model.Id)
+
+            @Html.EditorFor(model => model.FullName)
+            @Html.EditorFor(model => model.Occupation)
+            @Html.EditorFor(model => model.Img)
+        </fieldset>
+    </div>
+    <div class="actions">
+        <input type="submit" class="btn primary" value="Save" />
+    </div>
+}

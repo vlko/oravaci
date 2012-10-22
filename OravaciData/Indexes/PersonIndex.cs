@@ -22,7 +22,7 @@ namespace OravaciData.Indexes
                              select new PersonIndexResult()
                                  {
                                      Id = item.Id, 
-                                     FullName = item.FullName, 
+                                     FullName = item.FullName,
                                      Query = new []
                                          {
                                              item.FullName, 

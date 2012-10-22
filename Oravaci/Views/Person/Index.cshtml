@@ -1,0 +1,44 @@
+﻿@using OravaciData
+@model vlko.core.Components.PagedModel<OravaciData.Model.Person>
+@{
+	ViewBag.Title = "Index";
+    if (string.IsNullOrEmpty(Layout) || Layout == "~/Views/Shared/_Layout.cshtml")
+    {
+        Layout = "~/Views/Shared/_NormalLayout.cshtml";
+    }
+
+    Html.ScriptInclude("~/Scripts/Grid.js");
+}
+
+<h2>Index</h2>
+
+<table>
+	<thead>
+		<th></th>
+        <th>FullName</th>
+        <th>Occupation</th>
+        <th>Img</th>
+	</thead>
+
+@foreach (var item in Model) {
+	<tr>
+		<td class="no_wrap">
+			@Html.Link("edit", "Edit", (object)Routes.EditOfThisFromThis(item.Id.SimpleId()))
+			@Html.Link("delete", "Delete", (object)Routes.DeleteOfThisFromThis(item.Id.SimpleId()))
+		</td>
+        <td>@item.FullName</td>
+        <td>@item.Occupation</td>
+        <td>@item.Img</td>
+	</tr>
+}
+</table>
+
+<div>@Pager.Render(Html, Model)</div>
+
+@{ Html.ScriptInlineInclude(
+@<script type="text/javascript">
+	$(function () {
+		$("#content").ajaxGrid();
+	});
+</script>); 
+}

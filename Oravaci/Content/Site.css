@@ -1501,6 +1501,7 @@ body {
     color: black;
     cursor: pointer;
     z-index: 60;
+    overflow: hidden;
     transition-property: right, transform, transform-origin;
     transition-duration: 0.5s;
     transition-timing-function: ease-in-out;
@@ -1857,4 +1858,108 @@ body {
 #prev_t {
   left: 5px;
   background-image: url("/Content/images/timeline/prev.png"); }
+
+.editor-text {
+  margin-left: 130px;
+  width: 600px; }
+
+.editor-dialog {
+  color: #333;
+  font-size: 14px;
+  text-align: left;
+  border-radius: 4px;
+  -ms-box-sizing: border-box;
+  -webkit-box-sizing: border-box;
+  -moz-box-sizing: border-box;
+  box-sizing: border-box;
+  border: 1px solid #ccc;
+  padding: 5px 10px;
+  background: #FFFBE0;
+  position: absolute;
+  width: 600px;
+  text-align: center;
+  top: 0; }
+  .editor-dialog input {
+    color: #333;
+    border: 1px solid #ccc;
+    padding: 3px;
+    width: 300px; }
+    .editor-dialog input:focus {
+      outline: 0;
+      border: 1px solid #666; }
+  .editor-dialog .action {
+    padding: 4px;
+    color: #fff;
+    cursor: pointer; }
+  .editor-dialog .save {
+    background: #007200; }
+  .editor-dialog .cancel {
+    background: #999; }
+
+.editor-toolbar {
+  margin-left: 130px;
+  display: block;
+  border-radius: 4px;
+  width: 600px;
+  background: #eee;
+  position: relative;
+  z-index: 1;
+  background-image: linear-gradient(bottom, #eeeeee 0%, white 100%);
+  background-image: -o-linear-gradient(bottom, #eeeeee 0%, white 100%);
+  background-image: -moz-linear-gradient(bottom, #eeeeee 0%, white 100%);
+  background-image: -webkit-linear-gradient(bottom, #eeeeee 0%, white 100%);
+  background-image: -ms-linear-gradient(bottom, #eeeeee 0%, white 100%);
+  box-shadow: 0 0 4px 1px rgba(0, 0, 0, 0.3);
+  font-size: 0;
+  text-align: center; }
+  .editor-toolbar .commands {
+    border-left: 1px solid #ddd;
+    display: inline-block;
+    margin: 0; }
+  .editor-toolbar li.command {
+    position: relative;
+    top: 0;
+    border-right: 1px solid #ddd;
+    border-left: 1px solid #fff;
+    list-style: none;
+    font-size: 12px;
+    display: inline-block;
+    cursor: pointer;
+    height: 40px;
+    width: 68px !important; }
+    .editor-toolbar li.command span {
+      background-image: url(/Content/images/spr_toolbar_icons_r1.png);
+      background-repeat: no-repeat;
+      position: absolute;
+      left: 0;
+      right: 0;
+      top: 0;
+      bottom: 0; }
+    .editor-toolbar li.command:hover {
+      background-image: linear-gradient(bottom, #e5f0e2 0%, white 100%);
+      background-image: -o-linear-gradient(bottom, #e5f0e2 0%, white 100%);
+      background-image: -moz-linear-gradient(bottom, #e5f0e2 0%, white 100%);
+      background-image: -webkit-linear-gradient(bottom, #e5f0e2 0%, white 100%);
+      background-image: -ms-linear-gradient(bottom, #e5f0e2 0%, white 100%); }
+  .editor-toolbar .wysihtml5-command-active {
+    box-shadow: inset 0 1px 6px rgba(0, 0, 0, 0.2);
+    background: #eee !important; }
+  .editor-toolbar .wysihtml5-commands-disabled {
+    opacity: 0.4;
+    cursor: default;
+    background-image: none !important; }
+  .editor-toolbar .bold span {
+    background-position: 24px center; }
+  .editor-toolbar .italic span {
+    background-position: -48px center; }
+  .editor-toolbar .insertUnorderedList span {
+    background-position: -115px center; }
+  .editor-toolbar .insertOrderedList span {
+    background-position: -197px center; }
+  .editor-toolbar .h2 span {
+    background-position: -428px center; }
+  .editor-toolbar .createLink span {
+    background-position: -271px center; }
+  .editor-toolbar .insertImage span {
+    background-position: -513px center; }
 

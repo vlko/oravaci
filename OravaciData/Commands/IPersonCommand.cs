@@ -14,8 +14,14 @@ namespace OravaciData.Commands
         /// <summary>
         /// Gets all.
         /// </summary>
-        /// <returns>All persons.</returns>
-        Person[] GetAll();
+        /// <returns>all persons.</returns>
+        IQueryResult<Person> GetAll();
+
+        /// <summary>
+        /// Gets top 50.
+        /// </summary>
+        /// <returns>Top 50 persons.</returns>
+        Person[] Top50();
 
         /// <summary>
         /// Searches the specified search query.
@@ -23,5 +29,7 @@ namespace OravaciData.Commands
         /// <param name="searchQuery">The search query.</param>
         /// <returns>Search results.</returns>
         Person[] Search(string searchQuery);
+
+
     }
 }

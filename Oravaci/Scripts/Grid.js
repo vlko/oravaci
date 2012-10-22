@@ -97,7 +97,6 @@
 								prevUrl: getCurrentHistoryUrl()
 							});
 							closeLoading();
-							addToHistory(nextUrl);
 						},
 						error: ajaxException
 					});

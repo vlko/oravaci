@@ -1,15 +1,17 @@
-﻿<span ng-controller="ItemCtrl"  class="{{animationDirection}}">
-    
+﻿<span ng-controller="ItemCtrl" class="{{animationDirection}}">
+
     <div id="selected_info" ng-class="{visible:selectedItem}" ng-style="{'height':detailHeight}">
         <div class="content">
-            <div class="user_name">{{selectedItem.FullName}} <a  ng-hide="editMode" ng-click="setEditMode()">Edit</a></div>
-            
+            <div class="user_name">{{selectedItem.FullName}} <a ng-hide="editMode" ng-click="setEditMode()">Edit</a></div>
+
             <div id="timeline" ng-style="{'height':detailHeight}">
                 <form ng-show="editMode" class="form-stacked single_line">
                     <form-input label="Meno a Priezvisko" form-id="selectedItem.FullName" required></form-input>
                     <form-input label="Povolanie" form-id="selectedItem.Occupation"></form-input>
-                    <span><button class="btn" ng-click="addEvent()">Pridať udalosť</button></span>
-                    <span><button class="btn primary" ng-click="storeNew()">Uložiť</button></span>
+                    <span>
+                        <button class="btn" ng-click="addEvent()">Pridať udalosť</button></span>
+                    <span>
+                        <button class="btn primary" ng-click="storeNew()">Uložiť</button></span>
                 </form>
                 <ul id="issues" ng-style="{'height':detailContentHeight}" ng-class="{extended:extendedDetail}">
                     <li id="{{item.Id}}" ng-style="{'height':detailContentPHeight}" ng-repeat="item in selectedItem.TimeData">
@@ -17,11 +19,38 @@
                         <p ng-hide="editMode" ng-bind-html-unsafe="item.Text" class="text"></p>
                         <div ng-show="editMode" class="text">
                             <form>
-                                <span class="f_right"><button class="btn" ng-click="removeEvent($index)">Odobrat</button></span>
-                                <form-input label="Rok" form-id="item.Id" type="integer" required></form-input><span class="help-inline">Udalosti sa automatický zoradia pri uložení.</span><br/>
-                                <form-input label="Titulok" form-id="item.Title" required></form-input><br/>
-                                <span><label>Pozícia</label><span class="uneditable-input">{{item.Latitude | number: 6}},{{item.Longitude | number: 6}}</span><button ng-click="getCurrentPosition(item)" class="btn">Aktuálna pozícia</button></span><br>
-                                <form-input label="Text" form-id="item.Text"></form-input>
+                                <span class="f_right">
+                                    <button class="btn" ng-click="removeEvent($index)">Odobrat</button></span>
+                                <form-input label="Rok" form-id="item.Id" type="integer" required></form-input>
+                                <span class="help-inline">Udalosti sa automatický zoradia pri uložení.</span><br />
+                                <form-input label="Titulok" form-id="item.Title" required></form-input>
+                                <br />
+                                <span>
+                                    <label>Pozícia</label><span class="uneditable-input">{{item.Latitude | number: 6}},{{item.Longitude | number: 6}}</span>
+                                    <button ng-click="getCurrentPosition(item)" class="btn">Aktuálna pozícia</button></span><br>
+                                <div id="toolbar-{{item.Id}}" class="editor-toolbar">
+                                    <ul class="commands">
+                                        <li data-wysihtml5-command="bold" title="Make text bold (CTRL + B)" class="command bold"><span></span></li>
+                                        <li data-wysihtml5-command="italic" title="Make text italic (CTRL + I)" class="command italic"><span></span></li>
+                                        <li data-wysihtml5-command="insertUnorderedList" title="Insert an unordered list" class="command insertUnorderedList"><span></span></li>
+                                        <li data-wysihtml5-command="insertOrderedList" title="Insert an ordered list" class="command insertOrderedList"><span></span></li>
+                                        <li data-wysihtml5-command="createLink" title="Insert a link" class="command createLink"><span></span></li>
+                                        <li data-wysihtml5-command="insertImage" title="Insert an image" class="command insertImage"><span></span></li>
+                                        <li data-wysihtml5-command="formatBlock" data-wysihtml5-command-value="h2" title="Insert headline 2" class="command h2"><span></span></li>
+                                    </ul>
+                                    <div data-wysihtml5-dialog="createLink" class="editor-dialog" style="display: none;">
+                                        Link:
+                                        <input data-wysihtml5-dialog-field="href" value="http://">
+                                        <button data-wysihtml5-dialog-action="save" class="btn primary">OK</button>&nbsp;<button data-wysihtml5-dialog-action="cancel" class="btn">Cancel</button>
+                                    </div>
+                                    <div data-wysihtml5-dialog="insertImage" class="editor-dialog" style="display: none;">
+                                        Image:
+                                        <input data-wysihtml5-dialog-field="src" value="http://">
+                                        <button data-wysihtml5-dialog-action="save" class="btn primary">OK</button>&nbsp;<button data-wysihtml5-dialog-action="cancel" class="btn">Cancel</button>
+                                    </div>
+                                    
+                                </div>
+                                <textarea html-editor ng-model="item.Text" class="editor-text" spellcheck="false" wrap="off" autofocus placeholder="Enter something ..."></textarea>
                             </form>
                         </div>
                         <a class="more" ng-click="detailExtended()">viac...</a>
@@ -37,10 +66,12 @@
         </div>
     </div>
 
-    <div id="search" class="item"><img src="/Content/images/search.png"/><input  ng-model="query" /></div>
+    <div id="search" class="item">
+        <img src="/Content/images/search.png" /><input ng-model="query" />
+    </div>
 
     <div ng-repeat="item in items" class="item item-{{$index}} anim" ng-click="select($index)" ng-class="{selected:item.selected}">
-        <img ng:src='{{item.Img}}' alt="{{item.FullName}}"/>
+        <img ng:src='{{item.Img}}' alt="{{item.FullName}}" />
         <strong class="name">{{item.FullName}}</strong>
         <span class="occupation">{{item.Occupation}}</span>
     </div>
@@ -49,356 +80,364 @@
     <div class="item next" ng-click="paging(1)" ng-style><span class="name">next</span></div>
 </span>
 @{Html.ScriptInlineInclude(
-@<script>
-     function ItemCtrl($scope, GoogleMaps, layoutService, $http) {
-         var timerInterval = Rx.Observable.interval(100);
-         var page = 0;
-         var listObserver = undefined;
-         var timeline = $().timelinr({
-             arrowKeys: 'true'
-         });
-         var emptyTimeData = [
-             { Id: "nič", Title: "Žiadné dáta", Text: "Nemám dáta, skúste mi niečo prihodiť." }
-         ];
+    @<script>
+         function ItemCtrl($scope, GoogleMaps, layoutService, $http) {
+             var timerInterval = Rx.Observable.interval(100);
+             var page = 0;
+             var listObserver = undefined;
+             var timeline = $().timelinr({
+                 arrowKeys: 'true'
+             });
+             var emptyTimeData = [
+                 { Id: "nič", Title: "Žiadné dáta", Text: "Nemám dáta, skúste mi niečo prihodiť." }
+             ];
 
-         var polygon = undefined;
-         var markers = [];
-         var editMarker = undefined;
+             var polygon = undefined;
+             var markers = [];
+             var editMarker = undefined;
 
-         var timelineDeferAction = undefined;
+             var timelineDeferAction = undefined;
 
-         var items = [];
+             var items = [];
 
-         var query = new Rx.Subject();
-         
-         var throttledQuery = query
-                .select(function (text) {
-                    return (text && text.length > 2) ? text : undefined;
-                })
-                .throttle(500)
-                .distinctUntilChanged();
-         var itemsQuery = throttledQuery
-             .select(function (text) {
-                 var subject = new Rx.AsyncSubject();
-                 var url = text ? "@Routes.SearchOfPerson" : "@Routes.AllOfPerson";
-                 $http.post(url, { query: text })
-                     .success(function(data) {
-                         subject.onNext(data);
-                         subject.onCompleted();
-                     })
-                     .error(function(data, status, headers, config) {
-                         subject.OnError({
-                             data: data,
-                             status: status,
-                             headers: headers,
-                             config: config
+             var query = new Rx.Subject();
+
+             var throttledQuery = query
+                    .select(function (text) {
+                        return (text && text.length > 2) ? text : undefined;
+                    })
+                    .throttle(500)
+                    .distinctUntilChanged();
+             var itemsQuery = throttledQuery
+                 .select(function (text) {
+                     var subject = new Rx.AsyncSubject();
+                     var url = text ? "@Routes.SearchOfPerson" : "@Routes.AllOfPerson";
+                     $http.post(url, { query: text })
+                         .success(function (data) {
+                             subject.onNext(data);
+                             subject.onCompleted();
+                         })
+                         .error(function (data, status, headers, config) {
+                             subject.OnError({
+                                 data: data,
+                                 status: status,
+                                 headers: headers,
+                                 config: config
+                             });
                          });
-                     });
-                 return subject;
-             })
+                     return subject;
+                 })
              .switchLatest();
-         
-         itemsQuery.subscribe(function (data) {
-             items = data;
-             $scope.loadItems();
-             $scope.$apply();
-         }, function (e) {
-             items = [{ action: "fail", FullName: "Query Fails", Occupation: e }];
-             $scope.loadItems();
-             $scope.$apply();
-         });
 
-         // handle paging
-         $scope.paging = function(direction) {
-             if (direction > 0) {
-                 if ($scope.itemsPerScreen * (page + 1) < $scope.count) {
-                     ++page;
+                 itemsQuery.subscribe(function (data) {
+                     items = data;
                      $scope.loadItems();
-                     $scope.animationDirection = "anim_next";
-                 }
-             }
-             if (direction < 0) {
-                 if (page > 0) {
-                     --page;
-                     
+                     $scope.$apply();
+                 }, function (e) {
+                     items = [{ action: "fail", FullName: "Query Fails", Occupation: e }];
                      $scope.loadItems();
-                     $scope.animationDirection = "anim_prev";
-                 }
-             }
-         };
-
-         // load items
-         $scope.loadItems = function() {
-             var result = Enumerable.From(items);
-            
-             $scope.count = result.Count() + 1;
-             $scope.items = result.Skip($scope.itemsPerScreen * page).Take($scope.itemsPerScreen + 1).ToArray();
-             
-             if ($scope.items.length < $scope.itemsPerScreen) {
-                 $scope.items.push({ action: "add", FullName: "Add New", Img: "/Content/images/add_item.png" });
-             }
-             $(".prev").toggleClass("disabled", !page > 0);
-             $(".next").toggleClass("disabled", !($scope.itemsPerScreen * (page + 1) < $scope.count));
-         };
-
-         // reset map
-         var resetMap = function () {
-             if (polygon) {
-                 polygon.setMap(null);
-             }
-             polygon = undefined;
-             $.each(markers, function() {
-                 this.setMap(null);
-             });
-             markers = [];
-         };
-
-         // init map
-         var initMap = function(timeData, refresh) {
-             resetMap();
-
-             var computeBounds = function(polygon) {
-                 var path = polygon.getPath();
-                 var bounds = new google.maps.LatLngBounds(path[0], path[0]);
-                 for (var i = 0; i < path.getLength(); i++) {
-                     bounds.extend(path.getAt(i));
-                 }
-                 return bounds;
-             };
-
-             if (timeData) {
-                 var polyOptions = {
-                     strokeColor: '#000000',
-                     strokeOpacity: 1.0,
-                     strokeWeight: 3
-                 };
-                 polygon = new google.maps.Polyline(polyOptions);
-                 polygon.setMap(GoogleMaps);
-                 var path = polygon.getPath();
-                 $.each(timeData, function() {
-                     if (this.Latitude && this.Longitude) {
-                         var latLng = new google.maps.LatLng(this.Latitude, this.Longitude)
-                         path.push(latLng);
-                         var marker = new google.maps.Marker({
-                             position: latLng,
-                             title: this.Title,
-                             map: GoogleMaps
-                         });
-                         markers.push(marker);
-                     }
+                     $scope.$apply();
                  });
-                 if (markers.length && !refresh) {
-                     var bounds = computeBounds(polygon);
-                     GoogleMaps.setCenter(bounds.getCenter());
-                     GoogleMaps.fitBounds(bounds);
-                 } 
-             }
-             if (!markers.length) {
-                 var namestovo = new google.maps.LatLng(49.40638, 19.48388);
-                 GoogleMaps.setCenter(namestovo);
-                 GoogleMaps.setZoom(9);
-             }
-         };
 
-         // current position handler
-         $scope.getCurrentPosition = function(item) {
-             var currentPosition = GoogleMaps.getCenter();
-             item.Latitude = currentPosition.lat();
-             item.Longitude = currentPosition.lng();
-             initMap($scope.selectedItem.TimeData, true);
-         };
+             // handle paging
+                 $scope.paging = function (direction) {
+                     if (direction > 0) {
+                         if ($scope.itemsPerScreen * (page + 1) < $scope.count) {
+                             ++page;
+                             $scope.loadItems();
+                             $scope.animationDirection = "anim_next";
+                         }
+                     }
+                     if (direction < 0) {
+                         if (page > 0) {
+                             --page;
 
-         $scope.timelineRedraw = function(onlyResize) {
-             $scope.$evalAsync(function () {
-                 timeline.resize(onlyResize);
-                 if (timelineDeferAction) {
-                     timelineDeferAction();
+                             $scope.loadItems();
+                             $scope.animationDirection = "anim_prev";
+                         }
+                     }
+                 };
+
+             // load items
+                 $scope.loadItems = function () {
+                     var result = Enumerable.From(items);
+
+                     $scope.count = result.Count() + 1;
+                     $scope.items = result.Skip($scope.itemsPerScreen * page).Take($scope.itemsPerScreen + 1).ToArray();
+
+                     if ($scope.items.length < $scope.itemsPerScreen) {
+                         $scope.items.push({ action: "add", FullName: "Add New", Img: "/Content/images/add_item.png" });
+                     }
+                     $(".prev").toggleClass("disabled", !page > 0);
+                     $(".next").toggleClass("disabled", !($scope.itemsPerScreen * (page + 1) < $scope.count));
+                 };
+
+             // reset map
+                 var resetMap = function () {
+                     if (polygon) {
+                         polygon.setMap(null);
+                     }
+                     polygon = undefined;
+                     $.each(markers, function () {
+                         this.setMap(null);
+                     });
+                     markers = [];
+                 };
+
+             // init map
+                 var initMap = function (timeData, refresh) {
+                     resetMap();
+
+                     var computeBounds = function (polygon) {
+                         var path = polygon.getPath();
+                         var bounds = new google.maps.LatLngBounds(path[0], path[0]);
+                         for (var i = 0; i < path.getLength() ; i++) {
+                             bounds.extend(path.getAt(i));
+                         }
+                         return bounds;
+                     };
+
+                     if (timeData) {
+                         var polyOptions = {
+                             strokeColor: '#000000',
+                             strokeOpacity: 1.0,
+                             strokeWeight: 3
+                         };
+                         polygon = new google.maps.Polyline(polyOptions);
+                         polygon.setMap(GoogleMaps);
+                         var path = polygon.getPath();
+                         $.each(timeData, function () {
+                             if (this.Latitude && this.Longitude) {
+                                 var latLng = new google.maps.LatLng(this.Latitude, this.Longitude)
+                                 path.push(latLng);
+                                 var marker = new google.maps.Marker({
+                                     position: latLng,
+                                     title: this.Title,
+                                     map: GoogleMaps
+                                 });
+                                 markers.push(marker);
+                             }
+                         });
+                         if (markers.length && !refresh) {
+                             var bounds = computeBounds(polygon);
+                             setTimeout(function () {
+                                 GoogleMaps.setCenter(bounds.getCenter());
+                                 GoogleMaps.fitBounds(bounds);
+                             }, 1000);
+                         }
+                     }
+                     if (!markers.length) {
+                         var namestovo = new google.maps.LatLng(49.40638, 19.48388);
+                         GoogleMaps.setCenter(namestovo);
+                         GoogleMaps.setZoom(9);
+                     }
+                 };
+
+             // current position handler
+                 $scope.getCurrentPosition = function (item) {
+                     var currentPosition = GoogleMaps.getCenter();
+                     item.Latitude = currentPosition.lat();
+                     item.Longitude = currentPosition.lng();
+                     initMap($scope.selectedItem.TimeData, true);
+                 };
+
+                 $scope.timelineRedraw = function (onlyResize) {
+                     $scope.$evalAsync(function () {
+                         timeline.resize(onlyResize);
+                         if (timelineDeferAction) {
+                             timelineDeferAction();
+                         }
+                         timelineDeferAction = undefined;
+                     });
+                 };
+
+             // select item handler
+                 $scope.select = function (index) {
+                     var selectedItem = $scope.items[index];
+
+                     timelineDeferAction = function () {
+                         $("#dates a:first").click();
+                     };
+
+                     if (selectedItem.action) {
+                         $scope.editMode = -1;
+                         $scope.selectedItem = { Img: "/Content/images/anonym.png" };
+                         var crosshairShape = { coords: [0, 0, 0, 0], type: 'rect' };
+                         editMarker = new google.maps.Marker({
+                             map: GoogleMaps,
+                             icon: '/Content/images/cross-hairs.gif',
+                             shape: crosshairShape
+                         });
+                         editMarker.bindTo('position', GoogleMaps, 'center');
+                         $scope.$emit("selectionActivated", true, true);
+                     } else {
+                         $scope.editMode = false;
+                         Enumerable.From(items).ForEach(function (item) {
+                             item.selected = false;
+                         });
+                         $scope.selectedItem = selectedItem;
+                         $scope.selectedItem.selected = true;
+                         $scope.$emit("selectionActivated", true);
+                     }
+
+                     if (editMarker) {
+                         editMarker.setMap(null);
+                         editMarker.unbindAll();
+                         editMarker = undefined;
+                     }
+
+                     initMap($scope.selectedItem.TimeData);
+                 };
+
+             // set edit mode handler
+                 $scope.setEditMode = function () {
+                     var index = $scope.items.indexOf($scope.selectedItem);
+                     $scope.editMode = index + 1;
+                     $scope.selectedItem = JSON.parse(JSON.stringify($scope.selectedItem));
+                     var crosshairShape = { coords: [0, 0, 0, 0], type: 'rect' };
+                     editMarker = new google.maps.Marker({
+                         map: GoogleMaps,
+                         icon: '/Content/images/cross-hairs.gif',
+                         shape: crosshairShape
+                     });
+                     editMarker.bindTo('position', GoogleMaps, 'center');
+                     $scope.$emit("selectionActivated", true, true);
+                 };
+
+             // add time event handler
+                 $scope.addEvent = function () {
+                     if (!$scope.selectedItem.TimeData) {
+                         $scope.selectedItem.TimeData = [];
+                     }
+                     $scope.selectedItem.TimeData.push({ Id: "Nová" });
+                     $scope.$emit("selectionActivated", true, true);
+
+                     timelineDeferAction = function () {
+                         $("#dates a:last").click();
+                     };
+                 };
+
+             // remove time event handler
+                 $scope.removeEvent = function (index) {
+                     $scope.selectedItem.TimeData.splice(index, 1);
+                     $scope.$emit("selectionActivated", true, true);
+                     timelineDeferAction = function () {
+                         $("#dates a:eq(" + (index - 1) + ")").click();
+                     };
+                 };
+
+             // store new item handler
+                 $scope.storeNew = function () {
+                     $scope.selectedItem.TimeData = Enumerable
+                         .From($scope.selectedItem.TimeData)
+                         .OrderBy(function (item) { return item.Id; })
+                         .ToArray();
+                     if ($scope.editMode == -1) {
+                         $http.post("@Routes.storeOfPerson", $scope.selectedItem);
+                     items.splice(0, 0, $scope.selectedItem);
+                     $scope.query = "";
+                     resetScope();
+                     $scope.loadItems();
+                     $scope.selectedItem(0);
                  }
-                 timelineDeferAction = undefined;
-             });
-         };
-         
-         // select item handler
-         $scope.select = function(index) {
-             var selectedItem = $scope.items[index];
-             
-             timelineDeferAction = function () {
-                 $("#dates a:first").click();
+                 else {
+                     $http.post("@Routes.storeOfPerson", $scope.selectedItem);
+                     var index = $scope.editMode - 1;
+                     var item = $scope.items[index];
+                     $scope.items[index] = $scope.selectedItem;
+                     items[items.indexOf(item)] = $scope.selectedItem;
+                     $scope.$emit("selectionActivated", true);
+                     $scope.editMode = false;
+                 }
              };
-             
-             if (selectedItem.action) {
-                 $scope.editMode = -1;
-                 $scope.selectedItem = { Img: "/Content/images/anonym.png"};
+
+
+
+             // on handleLayout broadcast
+             $scope.$on("handleLayout", function () {
+                 $scope.height = layoutService.height;
+                 $scope.extendedDetail = layoutService.extendedDetail;
+                 $scope.detailHeight = layoutService.detailHeight + "px";
+                 var otherSize = $scope.editMode ? 130 : 60;
+                 $scope.detailContentHeight = (Math.max(layoutService.detailHeight - otherSize, 0)) + "px";
+                 $scope.detailContentPHeight = (Math.max(layoutService.detailHeight - (otherSize + 75), 0)) + "px";
+                 $scope.itemsPerScreen = parseInt((parseInt($scope.height) - 230) / 100);
+                 $scope.loadItems();
+                 $scope.$apply();
+                 $scope.timelineRedraw(true);
+             });
+
+             // detail expanded handler
+             $scope.detailExtended = function () {
                  $scope.$emit("selectionActivated", true, true);
-             } else {
-                 $scope.editMode = false;
-                 Enumerable.From(items).ForEach(function(item) {
+             };
+
+             // watch selectedItem change
+             $scope.$watch("selectedItem", function (value) {
+                 if (!$scope.editMode && value && (!value.TimeData || !value.TimeData.length)) {
+                     value.TimeData = emptyTimeData;
+                 }
+             });
+
+             // watch selectedItem timedata change
+             $scope.$watch("selectedItem.TimeData", function (value) {
+                 $scope.timelineRedraw(true);
+             }, true);
+
+             // reset scope
+             var resetScope = function () {
+                 $scope.animationDirection = "anim_next";
+                 $scope.page = 1;
+                 Enumerable.From(items).ForEach(function (item) {
                      item.selected = false;
                  });
-                 $scope.selectedItem = selectedItem;
-                 $scope.selectedItem.selected = true;
-                 $scope.$emit("selectionActivated", true);
-             }
-             
-             if (editMarker) {
-                 editMarker.setMap(null);
-                 editMarker.unbindAll();
-                 editMarker = undefined;
-             }
-             
-             initMap($scope.selectedItem.TimeData);
-         };
-
-         // set edit mode handler
-         $scope.setEditMode = function () {
-             var index = $scope.items.indexOf($scope.selectedItem);
-             $scope.editMode = index + 1;
-             $scope.selectedItem = JSON.parse(JSON.stringify($scope.selectedItem));
-             
-             var crosshairShape = { coords: [0, 0, 0, 0], type: 'rect' };
-             editMarker = new google.maps.Marker({
-                 map: GoogleMaps,
-                 icon: '/Content/images/cross-hairs.gif',
-                 shape: crosshairShape
-             });
-             editMarker.bindTo('position', GoogleMaps, 'center');
-             $scope.$emit("selectionActivated", true, true);
-         };
-         
-         // add time event handler
-         $scope.addEvent = function() {
-             if (!$scope.selectedItem.TimeData) {
-                 $scope.selectedItem.TimeData = [];
-             }
-             $scope.selectedItem.TimeData.push({ Id: "Nová" });
-             $scope.$emit("selectionActivated", true, true);
-             
-             timelineDeferAction = function () {
-                 $("#dates a:last").click();
-             };
-         };
-         
-         // remove time event handler
-         $scope.removeEvent = function (index) {
-             $scope.selectedItem.TimeData.splice(index, 1);
-             $scope.$emit("selectionActivated", true, true);
-             timelineDeferAction = function () {
-                 $("#dates a:eq(" + (index - 1) + ")").click();
-             };
-         };
-
-         // store new item handler
-         $scope.storeNew = function () {
-             $scope.selectedItem.TimeData = Enumerable
-                 .From($scope.selectedItem.TimeData)
-                 .OrderBy(function(item) { return item.Id; })
-                 .ToArray();
-             if ($scope.editMode == -1) {
-                 $http.post("@Routes.storeOfPerson", $scope.selectedItem);
-                 items.splice(0, 0, $scope.selectedItem);
-                 $scope.query = "";
-                 resetScope();
-                 $scope.loadItems();
-                 $scope.selectedItem(0);
-             }
-             else {
-                 $http.post("@Routes.storeOfPerson", $scope.selectedItem);
-                 var index = $scope.editMode - 1;
-                 var item = $scope.items[index];
-                 $scope.items[index] = $scope.selectedItem;
-                 items[items.indexOf(item)] = $scope.selectedItem;
-                 $scope.$emit("selectionActivated", true);
+                 $scope.selectedItem = undefined;
                  $scope.editMode = false;
-             }
-         };
+                 $scope.$emit("selectionActivated", false);
 
-         
+                 resetMap();
+             };
 
-         // on handleLayout broadcast
-         $scope.$on("handleLayout", function() {
-             $scope.height = layoutService.height;
-             $scope.extendedDetail = layoutService.extendedDetail;
-             $scope.detailHeight = layoutService.detailHeight + "px";
-             var otherSize = $scope.editMode ? 130 : 60;
-             $scope.detailContentHeight = (Math.max(layoutService.detailHeight - otherSize, 0)) + "px";
-             $scope.detailContentPHeight = (Math.max(layoutService.detailHeight - (otherSize + 75), 0)) + "px";
-             $scope.itemsPerScreen = parseInt((parseInt($scope.height) - 230) / 100);
-             $scope.loadItems();
-             $scope.$apply();
-             $scope.timelineRedraw(true);
-         });
-
-         // detail expanded handler
-         $scope.detailExtended = function() {
-             $scope.$emit("selectionActivated", true, true);
-         };
-         
-         // watch selectedItem change
-         $scope.$watch("selectedItem", function (value) {
-             if (!$scope.editMode && value && (!value.TimeData || !value.TimeData.length)) {
-                 value.TimeData = emptyTimeData;
-             }
-         });
-         
-         // watch selectedItem timedata change
-         $scope.$watch("selectedItem.TimeData", function (value) {
-             $scope.timelineRedraw(true);
-         }, true);
-
-         // reset scope
-         var resetScope = function() {
-             $scope.animationDirection = "anim_next";
-             $scope.page = 1;
-             Enumerable.From(items).ForEach(function (item) {
-                 item.selected = false;
+             // watch query change
+             $scope.$watch("query", function (value) {
+                 resetScope();
+                 query.onNext(value);
              });
-             $scope.selectedItem = undefined;
-             $scope.editMode = false;
-             $scope.$emit("selectionActivated", false);
 
-             resetMap();
-         };
-         
-         // watch query change
-         $scope.$watch("query", function (value) {
-             resetScope();
-             query.onNext(value);
-         });
-         
-         // watch items change
-         $scope.$watch("items", function (newItems, oldItems) {
-             if (listObserver) {
-                 listObserver.dispose();
-             }
-             var startIndex = undefined;
-             Enumerable.From(newItems)
-                 .Zip(oldItems, function (newItem, oldItem) { return { newItem: newItem, oldItem: oldItem }; })
-                 .FirstOrDefault(undefined, function(item) {
-                     if (angular.equals(item.newItem, item.oldItem)) {
-                         if (startIndex)
-                             ++startIndex;
-                         else
-                             startIndex = 0;
-                         return false;
-                     }
-                     return true;
+             // watch items change
+             $scope.$watch("items", function (newItems, oldItems) {
+                 if (listObserver) {
+                     listObserver.dispose();
+                 }
+                 var startIndex = undefined;
+                 Enumerable.From(newItems)
+                     .Zip(oldItems, function (newItem, oldItem) { return { newItem: newItem, oldItem: oldItem }; })
+                     .FirstOrDefault(undefined, function (item) {
+                         if (angular.equals(item.newItem, item.oldItem)) {
+                             if (startIndex)
+                                 ++startIndex;
+                             else
+                                 startIndex = 0;
+                             return false;
+                         }
+                         return true;
+                     });
+                 if (!startIndex) {
+                     startIndex = 0;
+                 }
+                 var range = Rx.Observable.range(startIndex, newItems.length - startIndex);
+                 if ($scope.animationDirection == "anim_prev")
+                     range = Rx.Observable.range(-newItems.length + 1, newItems.length - startIndex);
+                 var observer = timerInterval
+                     .zip(range, function (i, r) { return r });
+                 listObserver = observer.subscribe(function (item) {
+                     $(".item-" + Math.abs(item)).removeClass("anim");
                  });
-             if (!startIndex) {
-                 startIndex = 0;
-             }
-             var range = Rx.Observable.range(startIndex, newItems.length - startIndex);
-             if ($scope.animationDirection == "anim_prev")
-                 range = Rx.Observable.range(-newItems.length + 1, newItems.length - startIndex);
-             var observer = timerInterval
-                 .zip(range, function (i, r) { return r });
-             listObserver = observer.subscribe(function (item) {
-                 $(".item-" + Math.abs(item)).removeClass("anim");
              });
-         });
 
-         layoutService.broadcastLayout();
-     }
+             layoutService.broadcastLayout();
+         }
 
-     ItemCtrl.$inject = ['$scope', 'GoogleMaps', 'layoutService', '$http'];
-</script>
+         ItemCtrl.$inject = ['$scope', 'GoogleMaps', 'layoutService', '$http'];
+    </script>
 );}
